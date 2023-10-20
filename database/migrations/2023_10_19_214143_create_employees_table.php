@@ -20,10 +20,11 @@ return new class extends Migration
             $table->char('zip_code');
             $table->date('date_of_birth');
             $table->date('date_of_hired');
-            $table->foreignId('country_id')->constrained();
-            $table->foreignId('state_id')->constrained();
-            $table->foreignId('city_id')->constrained();
-            $table->foreignId('department_id')->constrained();
+
+            $table->foreignId('country_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('state_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
