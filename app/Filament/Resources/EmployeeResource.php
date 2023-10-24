@@ -4,14 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
+use App\Models\City;
 use App\Models\Employee;
+use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use GMP;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 
 class EmployeeResource extends Resource
 {
@@ -25,18 +31,46 @@ class EmployeeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('country_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('state_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('city_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('department_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Section::make('Relationships')
+                    ->description('.')
+                    ->schema([
+                        Forms\Components\Select::make('country_id')
+                            ->required()
+                            ->relationship(name: 'country', titleAttribute: 'name')
+                            ->live()
+                            ->afterStateUpdated(function (Set $set) {
+                                $set('state_id', null);
+                                $set('city_id', null);
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
+                        Forms\Components\Select::make('state_id')
+                            ->required()
+                            ->options(fn (Get $get): Collection => State::query()
+                                ->where('country_id', $get('country_id'))
+                                ->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
+                            ->native(false),
+                        Forms\Components\Select::make('city_id')
+                            ->required()
+                            ->options(fn (Get $get): Collection => City::query()
+                                ->where('state_id', $get('state_id'))
+                                ->pluck('name', 'id'))
+                            ->live()
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
+                        Forms\Components\Select::make('department_id')
+                            ->required()
+                            ->relationship(name: 'department', titleAttribute: 'name')
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
+                    ])->columns(2),
                 Forms\Components\Section::make('User Name')
                     ->description('Put the username details in.')
                     ->schema([
@@ -61,8 +95,10 @@ class EmployeeResource extends Resource
                     ])->columns(2),
                 Forms\Components\Section::make('Dates')->schema([
                     Forms\Components\DatePicker::make('date_of_birth')
+                        ->displayFormat('d/m/y')
                         ->required(),
                     Forms\Components\DatePicker::make('date_of_hired')
+                        ->displayFormat('d/m/y')
                         ->required(),
                 ])->columns(2)
 
