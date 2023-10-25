@@ -53,6 +53,13 @@ class CountryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('code')
+                    ->searchable()
+                    ->searchable(isIndividual: true),
+                Tables\Columns\TextColumn::make('phonecode')
+                    ->numeric()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
