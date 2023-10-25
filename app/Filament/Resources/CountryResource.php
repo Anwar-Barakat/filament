@@ -7,6 +7,9 @@ use App\Filament\Resources\CountryResource\RelationManagers;
 use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -84,6 +87,17 @@ class CountryResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Section::make('Country Info')->schema([
+                TextEntry::make('name'),
+                TextEntry::make('code'),
+                TextEntry::make('phonecode')->label('Phone Code'),
+            ])->columns(2)
+        ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -94,10 +108,10 @@ class CountryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCountries::route('/'),
-            'create' => Pages\CreateCountry::route('/create'),
-            'view' => Pages\ViewCountry::route('/{record}'),
-            'edit' => Pages\EditCountry::route('/{record}/edit'),
+            'index'     => Pages\ListCountries::route('/'),
+            'create'    => Pages\CreateCountry::route('/create'),
+            // 'view'      => Pages\ViewCountry::route('/{record}'),
+            'edit'      => Pages\EditCountry::route('/{record}/edit'),
         ];
     }
 }
