@@ -16,6 +16,7 @@ use Filament\Forms\Set;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Enums\FiltersLayout;
@@ -24,6 +25,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use GMP;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 
@@ -34,6 +36,40 @@ class EmployeeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationGroup = 'Employees Management';
+
+    protected static ?string $recordTitleAttribute = 'first_name';
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->first_name . ' ' . $record->last_name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['first_name', 'middle_name', 'last_name', 'country.name'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Country' => $record->country->name,
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['country']);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 5 ? 'info' : 'warning';
+    }
 
     public static function form(Form $form): Form
     {
@@ -54,6 +90,7 @@ class EmployeeResource extends Resource
                             ->preload()
                             ->native(false),
                         Forms\Components\Select::make('state_id')
+                            ->label('State')
                             ->required()
                             ->options(fn (Get $get): Collection => State::query()
                                 ->where('country_id', $get('country_id'))
@@ -64,6 +101,7 @@ class EmployeeResource extends Resource
                             ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
                             ->native(false),
                         Forms\Components\Select::make('city_id')
+                            ->label('City')
                             ->required()
                             ->options(fn (Get $get): Collection => City::query()
                                 ->where('state_id', $get('state_id'))
@@ -136,7 +174,8 @@ class EmployeeResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('zip_code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date_of_birth')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -192,6 +231,11 @@ class EmployeeResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->successNotification(Notification::make()
+                        ->info()
+                        ->title('Employee deleted')
+                        ->body('The employee was deleted successfully'))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

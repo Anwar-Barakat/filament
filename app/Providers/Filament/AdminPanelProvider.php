@@ -35,9 +35,10 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
-            ->font('Cairo')
+            ->font('Montserrat')
+            ->navigationGroups(['Employees Management', 'System Management', 'Users Management'])
             ->favicon(asset('favicon.ico'))
-            ->brandName('R-Mark')
+            ->brandName('LMS')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
