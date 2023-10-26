@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Country;
 use App\Models\Department;
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -37,6 +38,7 @@ class EmployeeFactory extends Factory
             'state_id'          => $state->id,
             'city_id'           => $city->id,
             'department_id'     => $department->id,
+            'team_id'           => Team::inRandomOrder()->first()->id,
         ];
     }
 }
