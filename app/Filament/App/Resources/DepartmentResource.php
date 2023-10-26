@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\DepartmentResource\Pages;
-use App\Filament\Resources\DepartmentResource\RelationManagers;
+use App\Filament\App\Resources\DepartmentResource\Pages;
+use App\Filament\App\Resources\DepartmentResource\RelationManagers;
 use App\Models\Department;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
@@ -33,7 +34,7 @@ class DepartmentResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::whereBelongsTo(Filament::getTenant())->count();
     }
 
     public static function getNavigationBadgeColor(): string|array|null
@@ -107,10 +108,10 @@ class DepartmentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'     => Pages\ListDepartments::route('/'),
-            'create'    => Pages\CreateDepartment::route('/create'),
-            'view'      => Pages\ViewDepartment::route('/{record}'),
-            'edit'      => Pages\EditDepartment::route('/{record}/edit'),
+            'index' => Pages\ListDepartments::route('/'),
+            'create' => Pages\CreateDepartment::route('/create'),
+            'view' => Pages\ViewDepartment::route('/{record}'),
+            'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
     }
 }

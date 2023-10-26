@@ -2,17 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\Employee;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class EmployeeSeeder extends Seeder
+class AdminSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Employee::factory(3)->create();
+        $admin  = User::factory(1)->create();
+        foreach (Team::all() as $team) {
+            $team->members()->attach($admin);
+        }
     }
 }
