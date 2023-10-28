@@ -116,6 +116,12 @@ class EmployeeResource extends Resource
                             ->searchable()
                             ->preload()
                             ->native(false),
+                        Forms\Components\Select::make('team_id')
+                            ->required()
+                            ->relationship(name: 'team', titleAttribute: 'name')
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
                     ])->columns(2),
                 Forms\Components\Section::make('User Name')
                     ->description('Put the username details in.')
